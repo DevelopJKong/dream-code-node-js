@@ -1,18 +1,49 @@
-import express from "express"
+import express from "express";
 const app = express();
 
 
-app.get("/jeong/:id",(req,res,next) => {
-    //console.log(req.path);
-    //console.log(req.headers);
-    console.log(req.params);
-    console.log(req.params.id);
-    console.log(req.query);
-    console.log(req.query.keyword);
+// all과 use의 차이점은 all은 딱 지정된 문자열에서만 되고
+// use은 지정된 문자열을 포함한것은 전부 다 된다 
+app.all('/api',(req,res,next) => { // all 에서도 하고 싶다면 '/api/*'
+    console.log('all');
+    next();
+});
 
-    //res.json({name: 'jeong'});
-    //res.sendStatus(400);
-    res.status(201).send("created");
-    res.setHeader('key','value'); // header 정도도 보낼수있으면? 다운로드도 구현할수있지 않을까?
-})
+app.use('/sky',(req,res,next) =>{
+    console.log('use');
+    next();
+});
+
+
+
+
+app.get(
+  "/",
+  (req, res, next) => { /******************중요 */
+    console.log("first");
+    // 만약에 한곳에 두개의 res.send를 사용하고 싶을때 혹은 res.* 사용하고 싶을때
+    if(true) {
+        return res.send('Hello');
+    }
+    res.send('hi'); // 이런식으로 끝내주어야 한다 지금은 true 기 때문에 여기까지 무조건 오지 않는다
+  },
+  (req, res, next) => {
+    console.log("first2");
+    next();
+  }
+);
+
+app.get("/", (req, res, next) => {
+  console.log("second");
+});
+
+app.use((req,res,next) =>{
+    res.status(404).send('Not available! @_@');
+});
+
+
+app.use((error,req,res,next) => {
+    console.log(error);
+    res.status.send('Sorry,try later');
+});
 app.listen(4020);
